@@ -11,6 +11,8 @@ import {UserInfo} from "../UserInfo";
 import {PostSkeleton} from "./Skeleton";
 import {Link} from "react-router-dom";
 import axios from "../../util/axios";
+import {useDispatch} from "react-redux";
+import {fetchRemovePost} from "../../redux/slices/post";
 
 export const Post = ({
                          id,
@@ -28,6 +30,7 @@ export const Post = ({
 
     const imageUrl = "https://res.cloudinary.com/practicaldev/image/fetch/s--UnAfrEG8--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/icohm5g0axh9wjmu4oc3.png"
     const [imageFile, setImageFile] = useState(null)
+    const dispatch = useDispatch()
     useEffect(() => {
         if (id) {
             axios.get(`/image/${id}/download`, {
@@ -44,15 +47,23 @@ export const Post = ({
         }
     }, [id]);
 
+    const onClickRemove = async () => {
+        if (window.confirm('Do you really want delete this post?')) {
+            dispatch(fetchRemovePost(id))
+        }
+    }
+
     return (
         isLoading ? <PostSkeleton/> : (
             <div className={clsx(styles.root, {[styles.rootFull]: isFullPost})}>
                 {isEditable && (
                     <div className={styles.editButtons}>
                         <IconButton color="primary">
-                            <EditIcon/>
+                            <Link to={`/main/edit-post/${id}`}>
+                                <EditIcon/>
+                            </Link>
                         </IconButton>
-                        <IconButton color="secondary">
+                        <IconButton color="secondary" onClick={onClickRemove}>
                             <DeleteIcon/>
                         </IconButton>
                     </div>
@@ -73,7 +84,7 @@ export const Post = ({
                             className={clsx(styles.title, {[styles.titleFull]: isFullPost})}
                         >
                             {isFullPost ? title :
-                                <Link to={`/posts/${id}`}>{title}</Link>
+                                <Link to={`/main/posts/${id}`}>{title}</Link>
                             }
                         </h2>
                         <ul className={styles.tags}>

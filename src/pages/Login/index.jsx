@@ -7,19 +7,24 @@ import Button from "@mui/material/Button";
 import styles from "./Login.module.scss";
 import {useForm} from "react-hook-form";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchUserData, selectIsAuth} from "../../redux/slices/auth";
+import {fetchAuthMe, selectUser} from "../../redux/slices/auth";
 import {useNavigate} from "react-router-dom";
+import axios from "../../util/axios";
 
 export const Login = () => {
 
     const dispatch = useDispatch()
-    const isAuth = useSelector(selectIsAuth)
+    const user = useSelector(selectUser)
     const navigate = useNavigate()
+
+    if (user) {
+        navigate('/main')
+    }
 
     const {
         register,
         handleSubmit,
-        setError,
+        setValue,
         formState: {errors, isValid}
     } = useForm({
         defaultValues: {
@@ -29,20 +34,18 @@ export const Login = () => {
         mode: 'all'
     })
 
-    if (isAuth) {
-        navigate('/')
-    }
-
     const onSubmit = async (values) => {
-        const data = await dispatch(fetchUserData(values))
-
-        if (!data.payload) {
-            return alert('UnAuthorized')
-        }
-
-        if ('token' in data.payload) {
-            window.localStorage.setItem('auth-token', data.payload.token)
-        }
+        axios.post('/auth/login', values)
+            .then(({data}) => {
+                window.localStorage.setItem('auth-token', data.token)
+                dispatch(fetchAuthMe())
+            })
+            .catch((err) => {
+                const {data} = err.response.data
+                setValue('email', '')
+                setValue('password', '')
+                alert(data)
+            })
     }
 
     return (
@@ -77,7 +80,7 @@ export const Login = () => {
                         }
                     })}
                 />
-                <Button type={'submit'} size="large" variant="contained" fullWidth>
+                <Button type={'submit'} size="large" variant="contained" disabled={!isValid} fullWidth>
                     Войти
                 </Button>
             </form>

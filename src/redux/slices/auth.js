@@ -2,21 +2,8 @@ import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
 import axios from "../../util/axios";
 
 const initialState = {
-    data: null,
-    errorMessage: null,
-    isLoading: true
+    user: null,
 }
-
-export const fetchUserData = createAsyncThunk(
-    'auth/fetchUserData',
-    async ({email, password}) => {
-        const {data} = await axios.post('/auth/login', {
-            email,
-            password
-        })
-        return data
-    }
-)
 
 export const fetchAuthMe = createAsyncThunk(
     'auth/fetchAuthMe',
@@ -31,46 +18,24 @@ const authSlice = createSlice({
     initialState,
     reducers: {
         logout: (state) => {
-            state.data = null
+            state.user = null
         }
     },
     extraReducers: builder => {
-        builder.addCase(fetchUserData.pending, (state) => {
-            state.isLoading = true
-            state.data = null
-            state.errorMessage = null
-        })
-        builder.addCase(fetchUserData.fulfilled, (state, action) => {
-            state.isLoading = false
-            state.data = action.payload
-            state.errorMessage = null
-        })
-        builder.addCase(fetchUserData.rejected, (state) => {
-            state.isLoading = false
-            state.data = null
-            state.errorMessage = 'Email or password invalid'
-        })
-
         builder.addCase(fetchAuthMe.pending, (state) => {
-            state.isLoading = true
-            state.data = null
-            state.errorMessage = null
+            state.user = null
         })
         builder.addCase(fetchAuthMe.fulfilled, (state, action) => {
-            state.isLoading = false
-            state.data = action.payload
-            state.errorMessage = null
+            state.user = action.payload
         })
         builder.addCase(fetchAuthMe.rejected, (state) => {
-            state.isLoading = false
-            state.data = null
-            state.errorMessage = 'Email or password invalid'
+            state.user = null
         })
     }
 })
 
-export const selectIsAuth = state => Boolean(state.auth.data)
-
 export const {logout} = authSlice.actions
+
+export const selectUser = state => state.auth.user
 
 export default authSlice.reducer

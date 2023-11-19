@@ -1,33 +1,35 @@
 import React, {useEffect, useState} from "react";
 
 import {Post} from "../components";
-import {Index} from "../components";
 import {CommentsBlock} from "../components";
 import {useParams} from "react-router-dom";
 import axios from "../util/axios";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchCommentsByPost, selectCommentDataByPost} from "../redux/slices/comment";
 
 export const FullPost = () => {
 
     const {id} = useParams()
+    const dispatch = useDispatch()
     const [post, setPost] = useState({})
-    const [comments, setComments] = useState([])
     const [isLoading, setIsLoading] = useState(true)
+    const {items, isLoading: commentLoading} = useSelector(selectCommentDataByPost)
 
     useEffect(() => {
-        setIsLoading(true)
-
-        axios.get(`/posts/${id}`)
-            .then(({data}) => {
-                setIsLoading(false)
+        async function fetchData() {
+            setIsLoading(true)
+            try {
+                const {data} = await axios.get(`/posts/${id}`)
                 setPost(data)
-            })
-            .catch(err => console.log(err))
+                dispatch(fetchCommentsByPost(id))
+            } catch (err) {
+                console.log(err)
+            } finally {
+                setIsLoading(false)
+            }
+        }
 
-        axios.get(`/comments/${id}`)
-            .then(({data}) => {
-                setComments(data)
-            })
-            .catch(err => console.log(err))
+        fetchData()
     }, [id]);
 
     if (isLoading) {
@@ -42,7 +44,7 @@ export const FullPost = () => {
                 user={post.createdUser}
                 createdAt={post.createdDateTime}
                 viewsCount={post.viewsCount}
-                commentsCount={comments.length}
+                commentsCount={items.length}
                 tags={post.tags}
                 isFullPost
             >
@@ -51,11 +53,10 @@ export const FullPost = () => {
                 </p>
             </Post>
             <CommentsBlock
-                items={comments}
-                isLoading={false}
-            >
-                <Index/>
-            </CommentsBlock>
+                postId={id}
+                items={items}
+                isLoading={commentLoading}
+            />
         </>
     );
 };

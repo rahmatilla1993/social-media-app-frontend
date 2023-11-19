@@ -11,4 +11,12 @@ instance.interceptors.request.use(config => {
     return config
 })
 
+instance.interceptors.response.use((config) => {
+        return config
+    }, (error) => {
+        window.localStorage.removeItem('auth-token')
+        return Promise.reject(error)
+    }
+)
+
 export default instance

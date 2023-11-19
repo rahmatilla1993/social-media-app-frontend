@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import Button from "@mui/material/Button";
@@ -6,60 +6,152 @@ import SimpleMDE from "react-simplemde-editor";
 
 import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
+import axios from "../../util/axios";
+import {useNavigate, useParams} from "react-router-dom";
 
 export const AddPost = () => {
-  const [value, setValue] = React.useState("");
+    const {id} = useParams()
+    const navigate = useNavigate()
+    const [post, setPost] = useState({});
+    const [image, setImage] = useState(null)
+    const [imageFile, setImageFile] = useState(null)
+    const inputFileRef = useRef(null)
+    const isEditing = Boolean(id)
 
-  const onChange = React.useCallback((value) => {
-    setValue(value);
-  }, []);
+    useEffect(() => {
+        if (id) {
+            axios.get(`/posts/${id}`)
+                .then(({data}) => {
+                    setPost({
+                        title: data.title,
+                        content: data.text,
+                        tags: data.tags.join(', ')
+                    })
+                    downloadImage(data.id)
+                })
+                .catch(err => console.log(err))
+        }
+    }, []);
 
-  const options = React.useMemo(
-    () => ({
-      spellChecker: false,
-      maxHeight: "400px",
-      autofocus: true,
-      placeholder: "Введите текст...",
-      status: false,
-      autosave: {
-        enabled: true,
-        delay: 1000,
-      },
-    }),
-    []
-  );
+    const downloadImage = (postId) => {
+        axios.get(`/image/${postId}/download`, {
+            responseType: 'blob'
+        })
+            .then((res) => {
+                const reader = new FileReader()
+                reader.readAsDataURL(res.data)
+                reader.onload = () => {
+                    setImage(reader.result)
+                }
+                // setImageFile(new File([res.data], 'aaab.jpg', res.data))
+            })
+            .catch(err => console.warn(err))
+    }
 
-  return (
-    <Paper style={{ padding: 30 }}>
-      <Button variant="outlined" size="large">
-        Загрузить превью
-      </Button>
-      <br />
-      <br />
-      <TextField
-        classes={{ root: styles.title }}
-        variant="standard"
-        placeholder="Заголовок статьи..."
-        fullWidth
-      />
-      <TextField
-        classes={{ root: styles.tags }}
-        variant="standard"
-        placeholder="Тэги"
-        fullWidth
-      />
-      <SimpleMDE
-        className={styles.editor}
-        value={value}
-        onChange={onChange}
-        options={options}
-      />
-      <div className={styles.buttons}>
-        <Button size="large" variant="contained">
-          Опубликовать
+    const onChange = useCallback((value) => {
+        setPost(prevState => ({
+            ...prevState,
+            content: value
+        }))
+    }, []);
+
+    const options = useMemo(() => ({
+        spellChecker: false,
+        maxHeight: "400px",
+        autofocus: true,
+        placeholder: "Введите текст...",
+        status: false,
+        autosave: {
+            enabled: true, delay: 1000,
+        },
+    }), []);
+
+    const handleChangeFile = (event) => {
+        const file = event.target.files[0]
+        setImageFile(file)
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => {
+            setImage(reader.result)
+        }
+    }
+
+    const uploadImage = (postId) => {
+        if (imageFile) {
+            const formData = new FormData()
+            formData.append('file', imageFile)
+            axios.post(`/image/${postId}/upload`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+                .then(() => {
+                    alert('Successfully added')
+                    navigate(`/main/posts/${postId}`)
+                })
+                .catch(err => console.log(err))
+        }
+    }
+
+    const onSubmit = async () => {
+        try {
+            const {data} = isEditing ?
+                await axios.put(`/posts/${id}/edit`, {...post}) :
+                await axios.post('/posts/add', {...post})
+            if (data && !imageFile) {
+                alert('Successfully added')
+                navigate(`/main/posts/${id}`)
+            }
+            uploadImage(data.id)
+        } catch (err) {
+            console.warn(err)
+        }
+    }
+
+    return (<Paper style={{padding: 30}}>
+        <Button variant="outlined" size="large" onClick={() => inputFileRef.current.click()}>
+            Image Upload
         </Button>
-        <Button size="large">Отмена</Button>
-      </div>
-    </Paper>
-  );
+        <input type="file" onChange={handleChangeFile} hidden ref={inputFileRef}/>
+        {image && (<>
+            <Button variant="contained" color="error" onClick={() => setImage(null)}>
+                Delete
+            </Button>
+            <img
+                className={styles.image}
+                src={image}
+                alt="Uploaded"
+            />
+        </>)}
+        <br/>
+        <br/>
+        <TextField
+            value={post.title}
+            classes={{root: styles.title}}
+            variant="standard"
+            placeholder="Maqola sarlavhasi"
+            onChange={(e) => setPost({...post, title: e.target.value})}
+            fullWidth
+        />
+        <TextField
+            value={post.tags}
+            classes={{root: styles.tags}}
+            variant="standard"
+            placeholder="Heshteglar"
+            onChange={e => setPost({...post, tags: e.target.value})}
+            fullWidth
+        />
+        <SimpleMDE
+            className={styles.editor}
+            value={post.content}
+            onChange={onChange}
+            options={options}
+        />
+        <div className={styles.buttons}>
+            <Button size="large" variant="contained" onClick={onSubmit}>
+                {isEditing ? 'Edit' : 'Add'}
+            </Button>
+            <Button size="large">Cancel</Button>
+        </div>
+    </Paper>);
 };

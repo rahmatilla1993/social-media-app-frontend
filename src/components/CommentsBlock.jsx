@@ -4,11 +4,12 @@ import {SideBlock} from "./SideBlock";
 import Divider from "@mui/material/Divider";
 import List from "@mui/material/List";
 import CommentItem from "./CommentItem";
+import {Index} from "./AddComment";
 
-export const CommentsBlock = ({items, isLoading, children}) => {
+export const CommentsBlock = ({postId, items, isLoading}) => {
 
     return (
-        <SideBlock title="Комментарии">
+        <SideBlock title="Izohlar">
             <List>
                 {(isLoading ? [...Array(5)] : items).map((obj, index) => (
                     <React.Fragment key={index}>
@@ -17,7 +18,7 @@ export const CommentsBlock = ({items, isLoading, children}) => {
                     </React.Fragment>
                 ))}
             </List>
-            {children}
+            {postId && <Index postId={postId}/>}
         </SideBlock>
     );
 };

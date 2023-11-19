@@ -3,17 +3,21 @@ import Button from "@mui/material/Button";
 
 import styles from "./Header.module.scss";
 import Container from "@mui/material/Container";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
-import {logout, selectIsAuth} from "../../redux/slices/auth";
+import {logout, selectUser} from "../../redux/slices/auth";
 
 export const Header = () => {
-    const isAuth = useSelector(selectIsAuth)
+    const user = useSelector(selectUser)
     const dispatch = useDispatch()
+    const navigate = useNavigate()
 
-    const loggingOut = () => {
-        dispatch(logout())
-        window.localStorage.clear()
+    const signOut = () => {
+        if (window.confirm('Tizimdan chiqmoqchimisiz?')) {
+            dispatch(logout())
+            navigate('/login')
+            window.localStorage.removeItem('auth-token')
+        }
     }
 
     return (
@@ -21,15 +25,15 @@ export const Header = () => {
             <Container maxWidth="lg">
                 <div className={styles.inner}>
                     <Link className={styles.logo} to="/">
-                        <div>ARCHAKOV BLOG</div>
+                        <div>SOCIAL MEDIA</div>
                     </Link>
                     <div className={styles.buttons}>
-                        {isAuth ? (
+                        {user ? (
                             <>
-                                <Link to="/add-post">
+                                <Link to="/main/add-post">
                                     <Button variant="contained">Написать статью</Button>
                                 </Link>
-                                <Button onClick={loggingOut} variant="contained" color="error">
+                                <Button onClick={signOut} variant="contained" color="error">
                                     Выйти
                                 </Button>
                             </>

@@ -1,39 +1,64 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import Grid from "@mui/material/Grid";
 
-import {Post} from "../components";
-import {TagsBlock} from "../components";
-import {CommentsBlock} from "../components";
+import {CommentsBlock, Post, TagsBlock} from "../components";
 import {useDispatch, useSelector} from "react-redux";
 import {fetchAllTags, fetchPosts, selectAllPosts, selectAllTags} from "../redux/slices/post";
 import {fetchComments, selectComments} from "../redux/slices/comment";
+import {selectUser} from "../redux/slices/auth";
+import {Box} from "@mui/material";
+import Search from "../components/Search";
 
 export const Home = () => {
 
     const dispatch = useDispatch()
+    const [tabValue, setTabValue] = useState(1)
     const {items: posts, isLoading: isPostsLoading} = useSelector(selectAllPosts)
     const {items: tags, isLoading: isTagsLoading} = useSelector(selectAllTags)
     const {comments, isLoading: isCommentsLoading} = useSelector(selectComments)
+    const user = useSelector(selectUser)
+    const {tagName, search} = useSelector(state => state.post)
 
     useEffect(() => {
-        dispatch(fetchPosts())
+        dispatch(fetchPosts({
+            tag: tagName,
+            title: search,
+            order: tabValue === 2 ? "order" : null
+        }))
+    }, [tagName, tabValue, search]);
+
+    useEffect(() => {
         dispatch(fetchAllTags())
         dispatch(fetchComments())
-    }, [dispatch]);
+    }, []);
 
+    const onChangeTabValue = (event, value) => {
+        setTabValue(value)
+    }
 
     return (
         <>
-            <Tabs
-                style={{marginBottom: 15}}
-                value={0}
-                aria-label="basic tabs example"
-            >
-                <Tab label="Новые"/>
-                <Tab label="Популярные"/>
-            </Tabs>
+            <Box display="grid" gridTemplateColumns="repeat(12, 1fr)" gap={2}>
+                <Box gridColumn="span 4">
+                    <Tabs
+                        style={{marginBottom: 15}}
+                        value={tabValue}
+                        onChange={onChangeTabValue}
+                        aria-label="basic tabs example"
+                    >
+                        <Tab label="Yangilari" value={1}/>
+                        <Tab label="Eng ko'p ko'rilganlar" value={2}/>
+                    </Tabs>
+                </Box>
+                <Box gridColumn="span 8" sx={{
+                    width: 500,
+                    maxWidth: '100%',
+                }}>
+                    <Search/>
+                </Box>
+            </Box>
             <Grid container spacing={4}>
                 <Grid xs={8} item>
                     {(isPostsLoading ? [...Array(5)] : posts).map((obj, index) => (
@@ -46,7 +71,7 @@ export const Home = () => {
                                 viewsCount={obj.viewsCount}
                                 commentsCount={obj.comments.length}
                                 tags={obj.tags}
-                                isEditable
+                                isEditable={user.id === obj.createdUser.id}
                             />
                         )
                     ))}
