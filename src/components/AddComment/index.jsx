@@ -28,7 +28,7 @@ export const Index = ({postId}) => {
                 />
                 <div className={styles.form}>
                     <TextField
-                        label="Написать комментарий"
+                        label="Izoh yozish"
                         variant="outlined"
                         maxRows={10}
                         multiline
