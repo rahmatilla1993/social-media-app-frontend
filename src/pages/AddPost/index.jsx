@@ -159,7 +159,7 @@ export const AddPost = () => {
             <Button size="large" variant="contained" onClick={onSubmit}>
                 {isEditing ? 'Edit' : 'Add'}
             </Button>
-            <Button size="large">Cancel</Button>
+            <Button size="large" onClick={() => navigate('/main')}>Cancel</Button>
         </div>
     </Paper>);
 };
