@@ -48,7 +48,7 @@ export const Post = ({
     }, [id]);
 
     const onClickRemove = async () => {
-        if (window.confirm('Do you really want delete this post?')) {
+        if (window.confirm("Siz rostdan ham bu postni o'chirmoqchimisiz?")) {
             dispatch(fetchRemovePost(id))
         }
     }

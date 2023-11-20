@@ -8,10 +8,13 @@ import "easymde/dist/easymde.min.css";
 import styles from "./AddPost.module.scss";
 import axios from "../../util/axios";
 import {useNavigate, useParams} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import {setNotification} from "../../redux/slices/notification";
 
 export const AddPost = () => {
     const {id} = useParams()
     const navigate = useNavigate()
+    const dispatch = useDispatch()
     const [post, setPost] = useState({});
     const [image, setImage] = useState(null)
     const [imageFile, setImageFile] = useState(null)
@@ -85,12 +88,12 @@ export const AddPost = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             })
-                .then(() => {
-                    alert('Successfully added')
-                    navigate(`/main/posts/${postId}`)
+                .then(({data}) => {
+                    console.log(data)
                 })
-                .catch(err => console.log(err))
+                .catch(err => console.error(err))
         }
+        navigate(`/main`)
     }
 
     const onSubmit = async () => {
@@ -98,13 +101,18 @@ export const AddPost = () => {
             const {data} = isEditing ?
                 await axios.put(`/posts/${id}/edit`, {...post}) :
                 await axios.post('/posts/add', {...post})
-            if (data && !imageFile) {
-                alert('Successfully added')
-                navigate(`/main/posts/${id}`)
-            }
+            dispatch(setNotification({
+                open: true,
+                severity: 'success',
+                message: isEditing ? 'Post edited' : 'Post created'
+            }))
             uploadImage(data.id)
         } catch (err) {
-            console.warn(err)
+            dispatch(setNotification({
+                open: true,
+                severity: 'error',
+                message: err.data
+            }))
         }
     }
 

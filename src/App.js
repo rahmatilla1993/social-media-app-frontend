@@ -7,6 +7,7 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import {useDispatch} from "react-redux";
 import {fetchAuthMe} from "./redux/slices/auth";
 import {useEffect} from "react";
+import Notification from "./components/Notification";
 
 function App() {
 
@@ -21,8 +22,9 @@ function App() {
         <>
             <Header/>
             <Container maxWidth="lg">
+                <Notification/>
                 <Routes>
-                    <Route index={true} element={<Navigate to={'/main'} replace/>}/>
+                    <Route index element={<Navigate to={'/main'} replace/>}/>
                     <Route path={'/login'} element={<Login/>}/>
                     <Route path={'/register'} element={<Registration/>}/>
                     <Route path={'/main'} element={<ProtectedRoute/>}>

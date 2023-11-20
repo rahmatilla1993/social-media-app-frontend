@@ -10,16 +10,13 @@ import {useDispatch, useSelector} from "react-redux";
 import {fetchAuthMe, selectUser} from "../../redux/slices/auth";
 import {useNavigate} from "react-router-dom";
 import axios from "../../util/axios";
+import {setNotification} from "../../redux/slices/notification";
 
 export const Login = () => {
 
     const dispatch = useDispatch()
     const user = useSelector(selectUser)
     const navigate = useNavigate()
-
-    if (user) {
-        navigate('/main')
-    }
 
     const {
         register,
@@ -34,24 +31,37 @@ export const Login = () => {
         mode: 'all'
     })
 
-    const onSubmit = async (values) => {
+    if (user) {
+        navigate('/main')
+    }
+
+    const onSubmit = (values) => {
         axios.post('/auth/login', values)
             .then(({data}) => {
                 window.localStorage.setItem('auth-token', data.token)
+                dispatch(setNotification({
+                    open: true,
+                    severity: 'success',
+                    message: 'Successfully login'
+                }))
                 dispatch(fetchAuthMe())
             })
-            .catch((err) => {
-                const {data} = err.response.data
+            .catch(() => {
                 setValue('email', '')
                 setValue('password', '')
-                alert(data)
+                dispatch(setNotification({
+                    open: true,
+                    severity: 'error',
+                    message: 'Email or password invalid'
+                }))
             })
     }
 
     return (
+
         <Paper classes={{root: styles.root}}>
             <Typography classes={{root: styles.title}} variant="h5">
-                Вход в аккаунт
+                Akkauntga kirish
             </Typography>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <TextField
@@ -81,9 +91,10 @@ export const Login = () => {
                     })}
                 />
                 <Button type={'submit'} size="large" variant="contained" disabled={!isValid} fullWidth>
-                    Войти
+                    Kirish
                 </Button>
             </form>
         </Paper>
-    );
+    )
+
 };

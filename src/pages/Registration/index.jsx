@@ -9,10 +9,13 @@ import styles from "./Login.module.scss";
 import {useNavigate} from "react-router-dom";
 import {useForm} from "react-hook-form";
 import axios from "../../util/axios";
+import {useDispatch} from "react-redux";
+import {setNotification} from "../../redux/slices/notification";
 
 export const Registration = () => {
 
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     const {
         register,
@@ -31,7 +34,11 @@ export const Registration = () => {
     const onSubmit = async (values) => {
         axios.post('/auth/signup', values)
             .then(({data}) => {
-                alert(data.data)
+                dispatch(setNotification({
+                    open: true,
+                    severity: 'success',
+                    message: data.data
+                }))
                 navigate('/login')
             })
             .catch(err => {

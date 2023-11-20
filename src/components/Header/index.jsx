@@ -13,7 +13,7 @@ export const Header = () => {
     const navigate = useNavigate()
 
     const signOut = () => {
-        if (window.confirm('Tizimdan chiqmoqchimisiz?')) {
+        if (window.confirm('Siz rostdan ham tizimdan chiqmoqchimisiz?')) {
             dispatch(logout())
             navigate('/login')
             window.localStorage.removeItem('auth-token')
@@ -31,19 +31,19 @@ export const Header = () => {
                         {user ? (
                             <>
                                 <Link to="/main/add-post">
-                                    <Button variant="contained">Написать статью</Button>
+                                    <Button variant="contained">Maqola yozish</Button>
                                 </Link>
                                 <Button onClick={signOut} variant="contained" color="error">
-                                    Выйти
+                                    Chiqish
                                 </Button>
                             </>
                         ) : (
                             <>
                                 <Link to="/login">
-                                    <Button variant="outlined">Войти</Button>
+                                    <Button variant="outlined">Kirish</Button>
                                 </Link>
                                 <Link to="/register">
-                                    <Button variant="contained">Создать аккаунт</Button>
+                                    <Button variant="contained">Ro'yxatdan o'tish</Button>
                                 </Link>
                             </>
                         )}
