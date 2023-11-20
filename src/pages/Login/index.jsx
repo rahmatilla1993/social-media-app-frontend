@@ -86,7 +86,7 @@ export const Login = () => {
                         required: "Password maydoni bo'sh qolmasin",
                         pattern: {
                             value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,}$/,
-                            message: "Kamida 4 ta belgi, katta va kichik harflar bo'lishi shart"
+                            message: "Kamida 4 ta belgi, katta va kichik harflar va raqam bo'lishi shart"
                         }
                     })}
                 />
