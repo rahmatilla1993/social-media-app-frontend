@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = 'https://social-media-app1-37568ee6f2fe.herokuapp.com/api'
+const API_URL = 'http://185.196.213.95:8080/api'
 // const API_URL = 'http://localhost:8080/api'
 
 const instance = axios.create({
