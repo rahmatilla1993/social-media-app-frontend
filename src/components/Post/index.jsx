@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import clsx from "clsx";
 import IconButton from "@mui/material/IconButton";
 import DeleteIcon from "@mui/icons-material/Clear";
@@ -10,7 +10,6 @@ import styles from "./Post.module.scss";
 import {UserInfo} from "../UserInfo";
 import {PostSkeleton} from "./Skeleton";
 import {Link} from "react-router-dom";
-import axios from "../../util/axios";
 import {useDispatch} from "react-redux";
 import {fetchRemovePost} from "../../redux/slices/post";
 
@@ -22,30 +21,15 @@ export const Post = ({
                          viewsCount,
                          commentsCount,
                          tags,
+                         imageUrl,
                          children,
                          isFullPost,
                          isLoading,
                          isEditable,
                      }) => {
 
-    const imageUrl = "https://res.cloudinary.com/practicaldev/image/fetch/s--UnAfrEG8--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/icohm5g0axh9wjmu4oc3.png"
-    const [imageFile, setImageFile] = useState(null)
+    const image = "https://res.cloudinary.com/practicaldev/image/fetch/s--UnAfrEG8--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/icohm5g0axh9wjmu4oc3.png"
     const dispatch = useDispatch()
-    useEffect(() => {
-        if (id) {
-            axios.get(`/image/${id}/download`, {
-                responseType: 'blob'
-            })
-                .then(({data}) => {
-                    const reader = new FileReader()
-                    reader.readAsDataURL(data)
-                    reader.onload = () => {
-                        setImageFile(reader.result)
-                    }
-                })
-                .catch(err => console.log(err))
-        }
-    }, [id]);
 
     const onClickRemove = async () => {
         if (window.confirm("Siz rostdan ham bu postni o'chirmoqchimisiz?")) {
@@ -70,7 +54,7 @@ export const Post = ({
                 )}
                 <img
                     className={clsx(styles.image, {[styles.imageFull]: isFullPost})}
-                    src={imageFile || imageUrl}
+                    src={imageUrl || image}
                     alt={title}
                 />
                 <div className={styles.wrapper}>

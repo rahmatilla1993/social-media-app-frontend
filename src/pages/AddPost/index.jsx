@@ -16,8 +16,8 @@ export const AddPost = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [post, setPost] = useState({});
-    const [image, setImage] = useState(null)
     const [imageFile, setImageFile] = useState(null)
+    const [image, setImage] = useState(null)
     const inputFileRef = useRef(null)
     const isEditing = Boolean(id)
 
@@ -28,28 +28,14 @@ export const AddPost = () => {
                     setPost({
                         title: data.title,
                         content: data.text,
-                        tags: data.tags.join(', ')
+                        tags: data.tags.join(', '),
+                        imageUrl: data.imageUrl
                     })
-                    downloadImage(data.id)
+                    setImage(data.imageUrl)
                 })
                 .catch(err => console.log(err))
         }
     }, []);
-
-    const downloadImage = (postId) => {
-        axios.get(`/image/${postId}/download`, {
-            responseType: 'blob'
-        })
-            .then((res) => {
-                const reader = new FileReader()
-                reader.readAsDataURL(res.data)
-                reader.onload = () => {
-                    setImage(reader.result)
-                }
-                // setImageFile(new File([res.data], 'aaab.jpg', res.data))
-            })
-            .catch(err => console.warn(err))
-    }
 
     const onChange = useCallback((value) => {
         setPost(prevState => ({
@@ -79,34 +65,47 @@ export const AddPost = () => {
         }
     }
 
-    const uploadImage = (postId) => {
-        if (imageFile) {
-            const formData = new FormData()
-            formData.append('file', imageFile)
-            axios.post(`/image/${postId}/upload`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-                .then(({data}) => {
-                    console.log(data)
-                })
-                .catch(err => console.error(err))
-        }
-        navigate(`/main`)
+    const addPost = async () => {
+        const postBlob = new Blob([JSON.stringify(post)], {
+            type: 'application/json'
+        })
+        const formData = new FormData()
+        formData.append('file', imageFile)
+        formData.append('data', postBlob)
+        const {data} = await axios.post('/posts/add', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        return data
+    }
+
+    const editPost = async () => {
+        const postBlob = new Blob([JSON.stringify(post)], {
+            type: 'application/json'
+        })
+        const formData = new FormData()
+        formData.append('file', imageFile)
+        formData.append('data', postBlob)
+        const {data} = await axios.put(`/posts/${id}/edit`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        return data
     }
 
     const onSubmit = async () => {
         try {
-            const {data} = isEditing ?
-                await axios.put(`/posts/${id}/edit`, {...post}) :
-                await axios.post('/posts/add', {...post})
+            const data = isEditing ?
+                await editPost() :
+                await addPost()
             dispatch(setNotification({
                 open: true,
                 severity: 'success',
                 message: isEditing ? 'Post edited' : 'Post created'
             }))
-            uploadImage(data.id)
+            navigate(`/main/posts/${data.id}`)
         } catch (err) {
             dispatch(setNotification({
                 open: true,
@@ -120,7 +119,7 @@ export const AddPost = () => {
         <Button variant="outlined" size="large" onClick={() => inputFileRef.current.click()}>
             Image Upload
         </Button>
-        <input type="file" onChange={handleChangeFile} hidden ref={inputFileRef}/>
+        <input type="file" required={true} onChange={handleChangeFile} hidden ref={inputFileRef}/>
         {image && (<>
             <Button variant="contained" color="error" onClick={() => setImage(null)}>
                 Delete
