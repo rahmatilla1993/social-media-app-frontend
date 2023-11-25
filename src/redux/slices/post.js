@@ -28,6 +28,14 @@ export const fetchPosts = createAsyncThunk(
     }
 )
 
+export const fetchLikePost = createAsyncThunk(
+    'posts/fetchLikePost',
+    async (postId) => {
+        const {data} = await axios.get(`/posts/${postId}/like`)
+        return data
+    }
+)
+
 export const fetchAllTags = createAsyncThunk(
     'tags/fetchAllTags',
     async () => {
@@ -80,6 +88,14 @@ const postSlice = createSlice({
         builder.addCase(fetchAllTags.rejected, (state) => {
             state.tags.isLoading = false
             state.tags.items = []
+        })
+
+        //like post
+        builder.addCase(fetchLikePost.fulfilled, (state, action) => {
+            const postFromDb = action.payload
+            const postFromState = state.posts.items.find(post => post.id === postFromDb.id)
+            postFromState.likedUsers = postFromDb.likedUsers
+            postFromState.likes = postFromDb.likes
         })
 
         //delete post

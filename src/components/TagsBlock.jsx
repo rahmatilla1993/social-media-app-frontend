@@ -19,7 +19,11 @@ export const TagsBlock = ({items, isLoading}) => {
 
     const onClickTag = (tag, index) => {
         setSelectedIndex(index)
-        dispatch(setTagName(tag))
+        if (index === selectedIndex) {
+            dispatch(setTagName(null))
+            setSelectedIndex(null)
+        } else
+            dispatch(setTagName(tag))
     }
 
     return (

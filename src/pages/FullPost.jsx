@@ -44,6 +44,8 @@ export const FullPost = () => {
                 user={post.createdUser}
                 createdAt={post.createdDateTime}
                 viewsCount={post.viewsCount}
+                likes={post.likes}
+                likedUsers={post.likedUsers}
                 imageUrl={post.imageUrl}
                 commentsCount={items.length}
                 tags={post.tags}

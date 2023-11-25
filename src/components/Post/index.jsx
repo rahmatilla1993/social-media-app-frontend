@@ -10,8 +10,11 @@ import styles from "./Post.module.scss";
 import {UserInfo} from "../UserInfo";
 import {PostSkeleton} from "./Skeleton";
 import {Link} from "react-router-dom";
-import {useDispatch} from "react-redux";
-import {fetchRemovePost} from "../../redux/slices/post";
+import {useDispatch, useSelector} from "react-redux";
+import {fetchLikePost, fetchRemovePost} from "../../redux/slices/post";
+import {ThumbUp} from "@mui/icons-material";
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
+import {selectUser} from "../../redux/slices/auth";
 
 export const Post = ({
                          id,
@@ -21,6 +24,8 @@ export const Post = ({
                          viewsCount,
                          commentsCount,
                          tags,
+                         likes,
+                         likedUsers,
                          imageUrl,
                          children,
                          isFullPost,
@@ -30,6 +35,11 @@ export const Post = ({
 
     const image = "https://res.cloudinary.com/practicaldev/image/fetch/s--UnAfrEG8--/c_imagga_scale,f_auto,fl_progressive,h_420,q_auto,w_1000/https://dev-to-uploads.s3.amazonaws.com/uploads/articles/icohm5g0axh9wjmu4oc3.png"
     const dispatch = useDispatch()
+    const userOfSystem = useSelector(selectUser)
+
+    const setLike = () => {
+        dispatch(fetchLikePost(id))
+    }
 
     const onClickRemove = async () => {
         if (window.confirm("Siz rostdan ham bu postni o'chirmoqchimisiz?")) {
@@ -88,6 +98,13 @@ export const Post = ({
                                 <CommentIcon/>
                                 <span>{commentsCount}</span>
                             </li>
+                            {!isFullPost && (
+                                <li onClick={setLike}>
+                                    {likedUsers.includes(userOfSystem.email) ? <ThumbUp fontSize='large'/> :
+                                        <ThumbUpOffAltIcon fontSize='large'/>}
+                                    <span>{likes > 0 && likes}</span>
+                                </li>
+                            )}
                         </ul>
                     </div>
                 </div>

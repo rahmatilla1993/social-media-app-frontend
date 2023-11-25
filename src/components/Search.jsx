@@ -28,7 +28,7 @@ function Search() {
     }
 
     return (
-        <TextField id="standard-basic" variant='standard' fullWidth label="Search" value={value}
+        <TextField id="standard-basic" variant='standard' fullWidth label="Qidirish" value={value}
                    onChange={onChangeInput}/>
     )
 }

@@ -73,6 +73,8 @@ export const Home = () => {
                                 commentsCount={obj.comments.length}
                                 tags={obj.tags}
                                 isEditable={user.id === obj.createdUser.id}
+                                likes={obj.likes}
+                                likedUsers={obj.likedUsers}
                             />
                         )
                     ))}
