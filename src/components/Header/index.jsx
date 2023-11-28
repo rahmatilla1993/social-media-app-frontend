@@ -33,6 +33,9 @@ export const Header = () => {
                                 <Link to="/main/add-post">
                                     <Button variant="contained">Maqola yozish</Button>
                                 </Link>
+                                <Link to="/main/profile">
+                                    <Button variant="outlined">Profilga o'tish</Button>
+                                </Link>
                                 <Button onClick={signOut} variant="contained" color="error">
                                     Chiqish
                                 </Button>

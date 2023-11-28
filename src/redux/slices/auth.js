@@ -8,7 +8,7 @@ const initialState = {
 export const fetchAuthMe = createAsyncThunk(
     'auth/fetchAuthMe',
     async () => {
-        const {data} = await axios.get('/auth/me')
+        const {data} = await axios.get('/user/me')
         return data
     }
 )

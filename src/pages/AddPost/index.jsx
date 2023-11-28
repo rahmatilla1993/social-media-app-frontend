@@ -117,9 +117,10 @@ export const AddPost = () => {
 
     return (<Paper style={{padding: 30}}>
         <Button variant="outlined" size="large" onClick={() => inputFileRef.current.click()}>
-            Image Upload
+            Rasm yuklash
         </Button>
-        <input type="file" required={true} onChange={handleChangeFile} hidden ref={inputFileRef}/>
+        <input type="file" required={true} onChange={handleChangeFile} hidden ref={inputFileRef}
+               accept={'image/*, .png, .jpg, .jpeg, .web'}/>
         {image && (<>
             <Button variant="contained" color="error" onClick={() => setImage(null)}>
                 Delete
@@ -156,9 +157,9 @@ export const AddPost = () => {
         />
         <div className={styles.buttons}>
             <Button size="large" variant="contained" onClick={onSubmit}>
-                {isEditing ? 'Edit' : 'Add'}
+                {isEditing ? 'Tahrirlash' : "Qo'shish"}
             </Button>
-            <Button size="large" onClick={() => navigate('/main')}>Cancel</Button>
+            <Button size="large" onClick={() => navigate('/main')}>Bekor qilish</Button>
         </div>
     </Paper>);
 };

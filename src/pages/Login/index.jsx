@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
@@ -11,12 +11,22 @@ import {fetchAuthMe, selectUser} from "../../redux/slices/auth";
 import {useNavigate} from "react-router-dom";
 import axios from "../../util/axios";
 import {setNotification} from "../../redux/slices/notification";
+import {FormControl, FormHelperText, InputAdornment, InputLabel, OutlinedInput} from "@mui/material";
+import IconButton from "@mui/material/IconButton";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 
 export const Login = () => {
 
     const dispatch = useDispatch()
     const user = useSelector(selectUser)
     const navigate = useNavigate()
+    const [showPassword, setShowPassword] = useState(false);
+
+    useEffect(() => {
+        if (user) {
+            navigate('/main')
+        }
+    }, [user]);
 
     const {
         register,
@@ -31,9 +41,7 @@ export const Login = () => {
         mode: 'all'
     })
 
-    if (user) {
-        navigate('/main')
-    }
+
 
     const onSubmit = (values) => {
         axios.post('/auth/login', values)
@@ -76,20 +84,40 @@ export const Login = () => {
                     })}
                     fullWidth
                 />
-                <TextField
+                {/*Password*/}
+                <FormControl
                     className={styles.field}
-                    label="Password" fullWidth
-                    inputMode={'text'}
-                    error={Boolean(errors.password?.message)}
-                    helperText={errors.password?.message}
-                    {...register('password', {
-                        required: "Password maydoni bo'sh qolmasin",
-                        pattern: {
-                            value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,}$/,
-                            message: "Kamida 4 ta belgi, katta va kichik harflar va raqam bo'lishi shart"
+                    variant="outlined"
+                    fullWidth
+                    error={Boolean(errors.password?.message)}>
+                    <InputLabel htmlFor="outlined-adornment-password">Parol</InputLabel>
+                    <OutlinedInput
+                        id="outlined-adornment-password"
+                        type={showPassword ? 'text' : 'password'}
+                        {...register('password', {
+                            required: "Password maydoni bo'sh qolmasin",
+                            pattern: {
+                                value: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{4,}$/,
+                                message: "Kamida 4 ta belgi, katta va kichik harflar va raqam bo'lishi shart"
+                            }
+                        })}
+                        endAdornment={
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShowPassword((show) => !show)}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff/> : <Visibility/>}
+                                </IconButton>
+                            </InputAdornment>
                         }
-                    })}
-                />
+                        label="Parol"
+                    />
+                    <FormHelperText disabled={Boolean(!errors.password?.message)}>
+                        {errors.password?.message}
+                    </FormHelperText>
+                </FormControl>
                 <Button type={'submit'} size="large" variant="contained" disabled={!isValid} fullWidth>
                     Kirish
                 </Button>

@@ -29,6 +29,7 @@ function App() {
                     <Route path={'/register'} element={<Registration/>}/>
                     <Route path={'/main'} element={<ProtectedRoute/>}>
                         <Route path={''} element={<Home/>}/>
+                        <Route path={'profile'} element={<Registration />}/>
                         <Route path={'posts/:id'} element={<FullPost/>}/>
                         <Route path={'add-post'} element={<AddPost/>}/>
                         <Route path={'edit-post/:id'} element={<AddPost/>}/>

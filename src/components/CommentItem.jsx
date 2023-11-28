@@ -12,7 +12,7 @@ function CommentItem({obj, isLoading}) {
                 {isLoading ? (
                     <Skeleton variant="circular" width={40} height={40}/>
                 ) : (
-                    <Avatar alt={obj.user.fullName} src={obj.user.avatarUrl}/>
+                    <Avatar src={obj.user.imageUrl} />
                 )}
             </ListItemAvatar>
             {isLoading ? (
